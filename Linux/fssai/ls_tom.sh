@@ -1,0 +1,3 @@
+#!/bin/bash
+#Script to print Tomcat Folders
+ls -lrth /opt/APPS/ | awk '{print $9}' | grep tom | sort -t'-' -k 2

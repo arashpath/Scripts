@@ -1,1 +1,0 @@
-ps -aef | grep [j]ava | awk '{print $2" "$15}'

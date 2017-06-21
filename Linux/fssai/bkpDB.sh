@@ -1,3 +1,5 @@
+#!/bin/bash
+#Script to backup from Live Database on Local Server
 DB=$1
 #DBSVR=$2
 DBSVR="psqldb01"

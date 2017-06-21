@@ -1,3 +1,5 @@
+#!/bin/bash
+#Script to Change DB string in Magnolia
 Magnolia="/opt/APPS/default-tom0/webapps/ROOT/"
 #DB Server:	OldSvr="localhost" ; NewSvr="postgresql"
 Svr_o="psqldb01" ; Svr_n="psqldb01"

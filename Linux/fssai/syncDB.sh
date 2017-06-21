@@ -1,3 +1,5 @@
+#!/bin/bash
+# Bash Script to Sync PostgreSQL DB from server to local Staging
 DB=$1
 
 PROX="/bin/ssh -t web01main"
