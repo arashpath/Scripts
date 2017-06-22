@@ -1,11 +1,11 @@
 #!/bin/bash
-#Script to Change Pos DB string in Magnolia
-Magnolia="/opt/APPS/mainHI-tom6/webapps/ROOT/"
-DB_Svr="psqldbsvr01"
-DB_Port="5432"
-DB_Name="magdb"
-DB_User="magdbuser"
-DB_Pass="magdbpass"
+#Bash Script to Change PostgreSQL DB string in Magnolia
+Magnolia="/opt/tomcat/webapps/magnolia/"        #Magnolia application Path
+DB_Svr="psqldbsvr01"                            #New PostgresDB Host name
+DB_Port="5432"                                  #Port 
+DB_Name="magdb"                                 #DataBase Name
+DB_User="magdbuser"                             #DataBase User 
+DB_Pass="magdbpass"                             #DataBase Password
 db_url="jdbc:postgresql://$DB_Svr:$DB_Port/$DB_Name"
 
 for i in $(grep -R '<param name="url" value="jdbc:postgresql:' "$Magnolia" -l)
