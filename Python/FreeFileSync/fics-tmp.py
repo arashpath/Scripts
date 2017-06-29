@@ -1,4 +1,3 @@
-#!/usr/bin/python
 from datetime   import date
 from calendar   import monthrange
 from string     import Template
@@ -25,13 +24,13 @@ while bkp_month.strftime("%y%m") < present.strftime("%y%m") :
     
     print "\nSyncing....  %s, %s" % ( month, year )
     ##raw_input("Press Enter to continue...")
+    
     for folder in folders:
         print "  %s" % (folder),
         filein = open( 'fics-tmp.tmpl' )
         src = Template( filein.read() )
         d={ 'year':year, 'month':month, 'folder':folder }
         result = src.substitute(d)
-        
         batch_file = year+month+"_"+folder+".ffs_batch"
         ffsbatch = open( batch_file, 'w')
         ffsbatch.write(result)
@@ -48,8 +47,10 @@ while bkp_month.strftime("%y%m") < present.strftime("%y%m") :
             print "\t Done with Errors!!"
         elif ret == 3:
             print "\t Aborted!!!"
-            
+        
+        remove(batch_file)
+        
     bkp_month = add_months(bkp_month,1)
-    remove(batch_file)
+    
 
 
