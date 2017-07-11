@@ -1,0 +1,57 @@
+#!/bin/bash
+# Bash Menu Site Deploy
+set -e 
+Svr="root@web01main"
+#======== Yes / No =============================#
+confirm() {
+    # call with a prompt string or use a default
+    read -r -p "${1:-Continue? [y/N]} " response
+    case "$response" in
+        [yY][eE][sS]|[yY]) 
+            true
+            ;;
+        *)
+            false
+	    echo "Exiting... " 
+            break ;;
+    esac
+}
+
+update() {
+    if [ -z "$1" ]; then echo "Exiting... "; exit 1 ; fi
+    WebSite=$1
+#    PS3='Type Of Update :'
+#    select Type in PATCH FULL
+#    do
+        folder=`ls -d /opt/APPS/$WebSite/webapps/*/`
+        src="$folder"
+	dest="$Svr:$folder"
+#        case $Type in
+#            FULL)
+#                
+#                confirm "Do you want to Deploy$(tput bold) $WebSite$(tput sgr0)? [y/N]" \
+#                && ssh $Svr <<+
+#/bin/tar -czf /opt/BKPs/$WebSite-`date +%H%M%S_%d%b%y`.tgz $folder --remove-files
+#+
+#
+#                rsync -aP $src $dest
+#                break ;;
+#            PATCH)
+                confirm "PATCH Update for $(tput bold)$WebSite$(tput sgr0)? [y/N]" \
+                && rsync -aP $dest $src
+#                break ;;
+#            *)  echo "Invalid Input" 
+#                break ;;
+#        esac
+#    done
+}
+
+#==================================================================================#
+PS3='Please choose WebSite to update: '
+options=(`ls -1 /opt/APPS/ | grep tom | sort -t'-' -k 2 | grep -v 'Others-\|Off-'`)
+#echo "'${options[@]}'"
+select opt in "${options[@]}"
+do
+    update $opt
+    break
+done
