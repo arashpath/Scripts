@@ -5,8 +5,18 @@ PKGS=$(dirname $(readlink -f "$0") )
 DEVENV=/opt/DevEnv
 mkdir $DEVENV
 
+# URLs In-case Download Required
+# Download link for Java, Tomcat, httpd, APR, APR-UTI, MODJK  
+  javaURL="http://download.oracle.com/otn/java/jdk/8u111-b14/jdk-8u111-linux-x64.tar.gz"
+tomcatURL="http://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz"
+ httpdURL="https://archive.apache.org/dist/httpd/httpd-2.4.25.tar.gz"  
+   aprURL="https://archive.apache.org/dist/apr/apr-1.5.2.tar.gz"
+  utilURL="https://archive.apache.org/dist/apr/apr-util-1.5.2.tar.gz"
+    jkURL="http://archive.apache.org/dist/tomcat/tomcat-connectors/jk/tomcat-connectors-1.2.42-src.tar.gz"
+
 # Installing Java -----------------------------------------------------------#
 echo -e "\nInstalling Java\n"
+##wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" $JavaURL 
 tar -xzf $PKGS/jdk-8*-linux-x64.tar.gz -C $DEVENV
 mv $DEVENV/jdk1.8.*/ $DEVENV/jdk8
 JAVA=$DEVENV/jdk8
@@ -16,6 +26,7 @@ $JAVA/bin/java -version
 
 # Installing Tomcat ---------------------------------------------------------#
 echo -e "\nInstalling Tomcat\n"
+##wget $tomcatURL
 tar -xzf $PKGS/apache-tomcat-8*.tar.gz -C $DEVENV
 mv $DEVENV/apache-tomcat-8*/ $DEVENV/tomcat8-HOME
 HOME=$DEVENV/tomcat8-HOME
@@ -84,12 +95,15 @@ $BASE/bin/server.sh version
 
 # Installng Apache 2.4 ------------------------------------------------------#
 echo -e "\nInstalling Apache\n"
+##wget $httpdURL
 tar -xzf $PKGS/httpd-2.4.*.tar.gz -C $DEVENV
 mv $DEVENV/httpd-2.4*/ $DEVENV/httpd
 
 #APR & APR UTI
+##wget $aprURL
 tar -xzf $PKGS/apr-1*.tar.gz -C $DEVENV
 mv $DEVENV/apr-* $DEVENV/httpd/srclib/apr
+##wget $utilURL
 tar -xzf $PKGS/apr-util-*.tar.gz -C $DEVENV
 mv $DEVENV/apr-util* $DEVENV/httpd/srclib/apr-util
 cd $DEVENV/httpd
@@ -136,6 +150,7 @@ echo -e "\nApache Installation Completed\n"
 
 # ModJK Connector -----------------------------------------------------------#
 echo -e "\nInstalling ModJK Connector\n"
+##wget $jkURL
 tar -zxf $PKGS/tomcat-connectors-*-src.tar.gz -C $DEVENV
 cd $DEVENV/tomcat-connectors-*-src/native
 ./configure -q --with-apxs=/opt/apache/bin/apxs && make -s && make -s install
