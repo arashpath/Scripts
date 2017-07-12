@@ -3,6 +3,7 @@ datadir='/opt/psqlDATA'
 yum -y localinstall postgresql-9.5.6-1-x64-bigsql.rpm
 /opt/postgresql/pgc init pg95 --datadir=$datadir
 echo "source /opt/postgresql/pg95/pg95.env" >> ~/.bash_profile
+ln -s /opt/postgresql/pg95/pg95.env /etc/profile.d/pg95.sh
 
 #systemctl enable postgresql95 
 #systemctl start postgresql95
