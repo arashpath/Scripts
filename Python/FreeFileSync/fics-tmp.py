@@ -27,7 +27,7 @@ while bkp_month.strftime("%y%m") < present.strftime("%y%m") :
     
     for folder in folders:
         print "  %s" % (folder),
-        filein = open( 'fics-tmp.templ' )
+        filein = open( 'fics-tmp.tmpl' )
         src = Template( filein.read() )
         d={ 'year':year, 'month':month, 'folder':folder }
         result = src.substitute(d)
