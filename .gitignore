@@ -1,3 +1,8 @@
 *.gz
 *.rpm
 *.tmpl
+<<<<<<< HEAD
+=======
+*.ffs_*
+.vscode/*
+>>>>>>> e249d3ce0fdfb08d34ff88bf8dd597451e241d16

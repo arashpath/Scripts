@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 #!/usr/bin/python3
+=======
+#!/usr/bin/python
+>>>>>>> e249d3ce0fdfb08d34ff88bf8dd597451e241d16
 from string     import Template
 from subprocess import call
 from os         import remove
 from time       import strftime
 
+<<<<<<< HEAD
 year = ['2016','2015','2017']
 
 folders = [
@@ -14,6 +19,19 @@ folders = [
 
 for y in year:
     for m in range(12,0,-1):
+=======
+#year = ['2016','2015','2017']
+year = ['2016']
+
+folders = [
+    #['Fdrive/FSSAI-DOCS1/FLRS','CLS'],
+    ['Edrive/FSSAI-DOCS/FLRS','SLS'],
+    #['Fdrive/FSSAI-DOCS1/FLRS','REG']
+    ]
+for y in year:
+    #for m in range(12,0,-1):
+    for m in range(7, 13):
+>>>>>>> e249d3ce0fdfb08d34ff88bf8dd597451e241d16
         print "\nSyncing %s %s" %(y, m)
     
         for f in folders:
@@ -31,8 +49,16 @@ for y in year:
             ffsbatch.write(result)
             ffsbatch.close()
 
+<<<<<<< HEAD
             ret = call(['C:\\Program Files\\FreeFileSync\\FreeFileSync.exe', batch_file])
             ##ret = 0       #for Testing if above line is commented
+=======
+            #raw_input("Press Enter to continue...")
+            ret, tr = 1, 1
+            while not ret == 0 and tr <= 3:
+                    ret = call(['C:\\Program Files\\FreeFileSync\\FreeFileSync.exe', batch_file])
+                    tr += 1 
+>>>>>>> e249d3ce0fdfb08d34ff88bf8dd597451e241d16
             if ret == 0:
                 print "\t Done"
             elif ret == 1:
