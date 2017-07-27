@@ -23,11 +23,8 @@ all_sum = 0
 for p in purgeFiles:
     (doc_type, base_path) = p
     #base_path = 'D:\FSSAI-DOCS\FLRS' #OverRide Actual base path for local testing
-    sql_query = """SELECT [refid], [PATH], [issueddate], [ExpireDate] 
-        FROM FLRS.dbo.RG_EXPLICDATA 
-        WHERE [TYPE] = ? 
-        AND [PATH] is NOT NULL ORDER BY [ExpireDate], [refid]"""
-    mssql.execute(sql_query, doc_type)
+    sql_query = "exec FLRS.dbo.PurgingDOC ?"
+    mssql.execute(sql_query, 'get'+doc_type)
     rows = mssql.fetchall()
 
     with open(doc_type+'_purging.log', 'w') as log_file:
