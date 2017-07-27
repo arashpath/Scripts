@@ -47,7 +47,7 @@ case "$response" in
         
         ;;
     *)
-        echo "license no $lic not deleted"
+        echo "SSL Cert. Updated in Apache"
 
         ;;
 esac
