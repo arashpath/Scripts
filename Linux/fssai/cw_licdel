@@ -1,0 +1,24 @@
+#!/bin/bash
+logfile="/opt/BKPs/cw_licdel.log"
+lic="'$1'"
+psql -c "select * from fboaddress where addid in ( select addid from fbolicenses where licenseno =$lic );" cleanwater
+psql -c "select * from fbolicenses where licenseno in ( $lic );" cleanwater
+
+read -r -p "Do you want to delete $lic ? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+        clear
+        echo -e "\n\n==== `date +%d%b%y" "%T` ================================================" | tee -a $logfile
+        psql -c "select * from fboaddress where addid in ( select addid from fbolicenses where licenseno =$lic );" cleanwater | tee -a $logfile
+        psql -c "delete from fboaddress where addid in ( select addid from fbolicenses where licenseno =$lic );" cleanwater | tee -a $logfile
+
+        psql -c "select * from fbolicenses where licenseno in ( $lic );" cleanwater | tee -a $logfile
+        psql -c "delete from fbolicenses where licenseno in ( $lic );" cleanwater | tee -a $logfile
+        echo -e "==== above rows for license no. $lic has been deleted ====\n\n" | tee -a $logfile
+        
+        ;;
+    *)
+        echo "license no $lic not deleted"
+
+        ;;
+esac
