@@ -1,7 +1,5 @@
 #!/usr/bin/python
-from string     import Template
-from subprocess import call
-from os         import remove
+from ffs_batch  import gen, run
 from time       import strftime
 from sys        import argv
 
@@ -10,32 +8,12 @@ def run_ffs(folders,y='',m='',exclude=''):
     """ A function to Run FFS"""
     for f in folders.keys():
         print "%s %s" %(strftime("%H:%M:%S %d/%m/%Y"),f),
-
-        templ = open( 'flrs-tmp.tmpl' )
-        src = Template( templ.read() )
-        d={ 'drive':folders.get(f), 'folder':f, 'y':y, 'm':m, 'exclude':exclude }
-        result = src.substitute(d)
-
-        batch_file = "flrs"+f+str(y)+str(m)+".ffs_batch"
-        with open( batch_file, 'w') as ffsbatch:
-            ffsbatch.write(result)
-
-        #raw_input("Press Enter to continue...")
-        ret, tr = 1, 1
-        while not ret == 0 and tr <= 3:
-                ret = call(['C:\\Program Files\\FreeFileSync\\FreeFileSync.exe', batch_file])
-                tr += 1 
-        if ret == 0:
-            print "=>> Done"
-        elif ret == 1:
-            print "=>> Done with Warnings!" , raw_input("\t Continue..?\n")
-        elif ret == 2:
-            print "=>> Done with Errors!!"  , raw_input("\t Continue..?\n")
-        elif ret == 3:
-            print "=>> Aborted!!!      "    , raw_input("\t Continue..?\n")
-
-        remove(batch_file)
-
+        source = (
+            'ftp://administrator@10.248.169.197/{}/{}/{}/{}'
+         #PASSWORD
+            ).format(folders.get(f), f, y, m )
+        destin = (r'D:\FSSAI-DOCS\FLRS\{}\{}\{}').format( f, y, m )
+        run(gen("flrs"+f+str(y)+str(m), source, destin, exclude))
 
 # Define Folders and their Base path
 folders = {
@@ -57,6 +35,7 @@ ex = r"""
                 <Item>\2017\</Item>
 """
 print "\nSyncing Base Folder"
+
 run_ffs(folders,exclude=ex) 
 
 for y in year:
