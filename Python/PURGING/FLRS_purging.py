@@ -3,7 +3,7 @@
 import pyodbc
 import os
 import pickle
-from purging  import hb, fs_check
+from purging     import hb, fs_check
 from progressbar import ProgressBar, Bar, Counter, Timer, RotatingMarker
 
 
@@ -11,6 +11,7 @@ from progressbar import ProgressBar, Bar, Counter, Timer, RotatingMarker
 cnxn = pyodbc.connect(
     r'DRIVER={SQL Server};DATABASE=FLRS;'
     r'SERVER=192.168.11.201;UID=sa;PWD=SAflrs@123' #LocalDB
+
     )
 mssql = cnxn.cursor()
 
@@ -23,26 +24,33 @@ def insert(row, status):
     values.append(status)
     try:
         mssql.execute(insert_query, values)
-    except pyodbc.Error as pyerr :
-        print "MSSQLError: "+str(pyerr)
+    except pyodbc.Error as dberr :
+        print str(values)+"\n MSSQL InsertError: "+str(dberr)
     finally:
         mssql.commit()
 
-def do_purg( doc_type, base_path, rows, arcLoc = r'G:\PURGED_DOCS\FLRS' ):
-    print "Purging "+doc_type
+def do_purg( base_path, rows, arcLoc = r'G:\PURGED_DOCS\FLRS' ):
     doc_sum, row_count = 0, 0
+    if not rows:
+        print "{0} Hooray!!!  No Need to purge this {0}".format(23*'-')
+        return doc_sum
     widgets = [Counter(), Bar(marker=RotatingMarker()), Timer()]
     pbar = ProgressBar(widgets=widgets)
     for row in pbar(rows):
         if not fs_check(5,'G'):
-            print "\n Space Full !!"
-            with open(doc_type+'_pending.pickle', 'wb') as pending_rows:
-                pickle.dump( rows[row_count:]  ,pending_rows)
+            print "\n{0}< SPACE FULL !!! >{0}".format(31*'-')
+            try:
+                with open(row.LicType+'_pending.pickle', 'wb') as pending_rows:
+                    pickle.dump( rows[row_count:]  ,pending_rows)
+            except IOError as ioerr:
+                print "FileErroe: "+str(ioerr)
+            except pickle.PickleError as perr:
+                print "PicklingError: "+str(perr)
             return doc_sum
         else:
             arcFile = os.path.normpath(row.DOC)
-            srcPath = os.path.join(base_path, doc_type, arcFile)
-            arcPath = os.path.join(arcLoc, doc_type, arcFile)
+            srcPath = os.path.join(base_path, arcFile)
+            arcPath = os.path.join(arcLoc, row.LicType, arcFile)
             try:
                 if os.path.isfile(srcPath):
                     fsize = os.path.getsize(srcPath)
@@ -56,25 +64,31 @@ def do_purg( doc_type, base_path, rows, arcLoc = r'G:\PURGED_DOCS\FLRS' ):
                 status = "ERROR"
             insert(row, status)
             row_count += 1   
-    print 80*"-"
-    print "Total Space Cleared in %s = %s" % (doc_type,  hb(doc_sum))
-    print 80*"-"
+    print "{1}>> Space Cleared : {0:>10} <<{1}".format(hb(doc_sum), 24*'-')
     return doc_sum
 
 sql_sp = "exec FLRS.dbo.PurgingDOC "  
 
 print "Getting Expired Lic Count..."
 total_space_cleared = 0
-for each in mssql.execute(sql_sp+'getCount').fetchall():
+for each in mssql.execute(sql_sp+'getCount ').fetchall():
+    print "Now Purging '{}' From {:>24}".format(each.LicType, each.BasePath)
     pickle_file = each.LicType+'_pending.pickle'
-    print "{} Total Lic: {} Expired Lic: {}".format(each.LicType, each.Total, 
-                                                    each.Expired)
-    if os.path.isfile(os.path.join(os.getcwd(), pickle_file)):
-        rows = pickle.load( open(pickle_file, 'rb') )
-    else:
-        rows = mssql.execute(sql_sp+"get"+each.LicType).fetchall()
-    space_cleared = do_purg( each.LicType, each.BasePath, rows )
+    try:                    
+        if os.path.isfile(os.path.join(os.getcwd(), pickle_file)):
+            rows = pickle.load( open(pickle_file, 'rb') )
+        else:
+            rows = mssql.execute(sql_sp+"get"+each.LicType).fetchall()
+    except IOError as err:
+        print 'FileError: '+str(err)
+    except pickle.PickleError as perr:
+        print 'PickleReadError: '+str(perr)
+    except pyodbc.Error as dberr:
+        print 'MSSQL FetchError: '+str(dberr)
+    space_cleared = do_purg( each.BasePath, rows )
+    total_space_cleared += space_cleared
 cnxn.close()
-print 80*"="
-print "Total Space Cleared : {} ".format(hb(total_space_cleared))
-print 80*"="
+print 80*'='
+print 23*'>'+" Total Space Cleared : {:>10} ".format(
+    hb(total_space_cleared))+23*'<'
+print 80*'='

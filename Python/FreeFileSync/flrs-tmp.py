@@ -10,7 +10,7 @@ def run_ffs(folders,y='',m='',exclude=''):
         print "%s %s" %(strftime("%H:%M:%S %d/%m/%Y"),f),
         source = (
             'ftp://administrator@10.248.169.197/{}/{}/{}/{}'
-         #PASSWORD
+            #PASSWORD
             ).format(folders.get(f), f, y, m )
         destin = (r'D:\FSSAI-DOCS\FLRS\{}\{}\{}').format( f, y, m )
         run(gen("flrs"+f+str(y)+str(m), source, destin, exclude))
@@ -35,7 +35,6 @@ ex = r"""
                 <Item>\2017\</Item>
 """
 print "\nSyncing Base Folder"
-
 run_ffs(folders,exclude=ex) 
 
 for y in year:
