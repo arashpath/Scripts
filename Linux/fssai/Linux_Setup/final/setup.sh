@@ -16,7 +16,7 @@ tomcatURL="http://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomc
 
 # Installing Java -----------------------------------------------------------#
 echo -e "\nInstalling Java\n"
-##wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" $JavaURL 
+##wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" $javaURL 
 tar -xzf $PKGS/jdk-8*-linux-x64.tar.gz -C $DEVENV
 mv $DEVENV/jdk1.8.*/ $DEVENV/jdk8
 JAVA=$DEVENV/jdk8

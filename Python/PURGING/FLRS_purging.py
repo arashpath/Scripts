@@ -1,6 +1,6 @@
 # #Compile Using: pyinstaller --debug --onefile --noupx
 
-import pyodbc
+import pypyodbc as pyodbc 
 import os
 import pickle
 from purging     import hb, fs_check

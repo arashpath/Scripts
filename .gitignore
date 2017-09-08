@@ -1,5 +1,11 @@
 *.gz
 *.rpm
 *.tmpl
+*.zip
+*.tgz
 *.ffs_*
+*.pyc
+*.spec
 .vscode/*
+dist/
+build/

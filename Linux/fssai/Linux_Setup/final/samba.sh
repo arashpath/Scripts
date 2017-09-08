@@ -9,6 +9,7 @@ netbios name = centos
 security = user
 map to guest = bad user
 dns proxy = no
+allow insecure wide links = yes
 # Share Folders ===========#
 [StgSites]
 path = /opt/APPS
@@ -16,6 +17,8 @@ valid users = @smbgrp
 guest ok = no
 writable = yes
 browsable = yes
+follow symlinks = yes
+wide links = yes
 EOF
 
 groupadd smbgrp
