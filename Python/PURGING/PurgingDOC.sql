@@ -12,12 +12,13 @@
 USE [FLRS]
 GO
 
-/****** Object:  StoredProcedure [dbo].[PurgingDOC]    Script Date: 10-08-2017 10:51:09 ******/
+/****** Object:  StoredProcedure [dbo].[PurgingDOC]    Script Date: 24-08-2017 14:20:02 ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -87,22 +88,23 @@ BEGIN
 	BEGIN
 	--select * from Purging_log where LicType='Nothing'
 	--/*
-	select 'CLS' as LicType, A.REFID, B.IssuedDate, B.ExpireDate, A.DOC, A.TableName FROM (
-		  select REFID,  DUPLIC_DOC		 as DOC, 'CL_FBO_AppDetails'					as TableName from CL_FBO_AppDetails					  WITH (NOLOCK)
-	union select REFID,  TRANSFER_DOC	 as DOC, 'CL_FBO_AppDetails'					as TableName from CL_FBO_AppDetails					  WITH (NOLOCK)
-	union select REFID,  TRANSFER_DOCLHC as DOC, 'CL_FBO_AppDetails'					as TableName from CL_FBO_AppDetails					  WITH (NOLOCK)
-	union select REFID,  ModificationDoc as DOC, 'CL_FBO_AppModification'				as TableName from CL_FBO_AppModification			  WITH (NOLOCK)
-	union select REFID,  ModificationDoc as DOC, 'CL_FBO_AppModification_enforcement'	as TableName from CL_FBO_AppModification_enforcement  WITH (NOLOCK)
-	union select REFID,  DOCLocation	 as DOC, 'CL_FBO_DocumentChange_log'			as TableName from CL_FBO_DocumentChange_log			  WITH (NOLOCK)
-	union select REFID,  DOCLocation	 as DOC, 'CL_FBO_Documents'						as TableName from CL_FBO_Documents					  WITH (NOLOCK)
-	union select REFID,  ManualInspDoc	 as DOC, 'CL_FBO_InspMaster'					as TableName from CL_FBO_InspMaster					  WITH (NOLOCK)
-	union select REFID,  DOCLOCATION	 as DOC, 'CL_FBO_PADocument'					as TableName from CL_FBO_PADocument					  WITH (NOLOCK)
-	union select REFID,  DOCLOCATION	 as DOC, 'CL_FBO_PADocumentChange_LOG'			as TableName from CL_FBO_PADocumentChange_LOG		  WITH (NOLOCK)
-	union select REFID,  Document		 as DOC, 'CL_FBO_SubCatFoodbusinessoperators'	as TableName from CL_FBO_SubCatFoodbusinessoperators  WITH (NOLOCK)
-	union select REFID,  CancelDoc		 as DOC, 'CL_LicCancelationHistory'				as TableName from CL_LicCancelationHistory			  WITH (NOLOCK)
-	union select REFID,  DUPLIC_DOC		 as DOC, 'CLEXPAPPDETAILS'						as TableName from CLEXPAPPDETAILS					  WITH (NOLOCK)
-	union select REFID,  DOCLocation	 as DOC, 'LM_CL_FBO_Documents'					as TableName from LM_CL_FBO_Documents				  WITH (NOLOCK)
-	union select REFID,  DOCLocation	 as DOC, 'LM_CL_FBO_Documents_Log'				as TableName from LM_CL_FBO_Documents_Log			  WITH (NOLOCK)
+	select 'CLS' as LicType, REFID, IssuedDate, [ExpireDate], DOC from (
+    select  B.REFID, B.IssuedDate, B.ExpireDate, A.DOC, ROW_NUMBER() OVER( Partition by A.DOC ORDER BY B.ExpireDate desc ) as rn  FROM (
+		  select REFID,  DUPLIC_DOC		 as DOC from CL_FBO_AppDetails					  WITH (NOLOCK)
+	union select REFID,  TRANSFER_DOC	 as DOC from CL_FBO_AppDetails					  WITH (NOLOCK)
+	union select REFID,  TRANSFER_DOCLHC as DOC from CL_FBO_AppDetails					  WITH (NOLOCK)
+	union select REFID,  ModificationDoc as DOC from CL_FBO_AppModification				  WITH (NOLOCK)
+	union select REFID,  ModificationDoc as DOC from CL_FBO_AppModification_enforcement   WITH (NOLOCK)
+	union select REFID,  DOCLocation	 as DOC from CL_FBO_DocumentChange_log			  WITH (NOLOCK)
+	union select REFID,  DOCLocation	 as DOC from CL_FBO_Documents					  WITH (NOLOCK)
+	union select REFID,  ManualInspDoc	 as DOC from CL_FBO_InspMaster					  WITH (NOLOCK)
+	union select REFID,  DOCLOCATION	 as DOC from CL_FBO_PADocument					  WITH (NOLOCK)
+	union select REFID,  DOCLOCATION	 as DOC from CL_FBO_PADocumentChange_LOG		  WITH (NOLOCK)
+	union select REFID,  Document		 as DOC from CL_FBO_SubCatFoodbusinessoperators   WITH (NOLOCK)
+	union select REFID,  CancelDoc		 as DOC from CL_LicCancelationHistory			  WITH (NOLOCK)
+	union select REFID,  DUPLIC_DOC		 as DOC from CLEXPAPPDETAILS					  WITH (NOLOCK)
+	union select REFID,  DOCLocation	 as DOC from LM_CL_FBO_Documents				  WITH (NOLOCK)
+	union select REFID,  DOCLocation	 as DOC from LM_CL_FBO_Documents_Log			  WITH (NOLOCK)
 	) AS A 
 		left join (
 	SELECT L.REFID, L.IssuedDate, L.ExpireDate from ( select LicenseNo, MAX(CreatedOn) AS Final 
@@ -110,9 +112,12 @@ BEGIN
 				left join CL_FBO_License as L WITH (NOLOCK) on Le.LicenseNo = L.LicenseNo and Le.Final = L.CreatedOn ) AS B ON A.REFID = B.REFID 
 	where A.REFID not in(                -- Removing RFID of Applications that had been applied for Renewal
 		select REFID from CL_FBO_License      WITH (NOLOCK) where ATID in (select ATID from CL_FBO_AppStatusMaster WITH (NOLOCK) where AppType = 'R'and StatusID != 5 and PaymentFlag = 'Y' )
-		) and A.DOC IS NOT NULL and CONVERT (date, B.ExpireDate) < @rmDate
+		) and CONVERT (date, B.ExpireDate) < @rmDate
+		and A.DOC IS NOT NULL 
+		and A.DOC <> ''
 		and A.DOC not in (select DOC from Purging_log where LicType = 'CLS')
-	order by B.ExpireDate
+	) CLSList where rn = '1'
+	order by ExpireDate
 	--*/
 	END
 
@@ -120,20 +125,21 @@ BEGIN
 	BEGIN
 	--select * from Purging_log where LicType='Nothing'
 	--/*
-	select 'SLS' as LicType, A.REFID, B.IssuedDate, B.ExpireDate, A.DOC, A.TableName FROM (	
-		  select REFID,  DOCLocation		as DOC, 'LM_SL_FBO_Documents'							as TableName from LM_SL_FBO_Documents						   WITH (NOLOCK)
-	union select REFID,  DOCLocation		as DOC, 'LM_SL_FBO_Documents_log'						as TableName from LM_SL_FBO_Documents_log					   WITH (NOLOCK)
-	union select REFID,  DUPLIC_DOC			as DOC, 'SL_FBO_AppDetails'								as TableName from SL_FBO_AppDetails							   WITH (NOLOCK)
-	union select REFID,  SCANEEDDOC			as DOC, 'SL_FBO_AppDetails'								as TableName from SL_FBO_AppDetails							   WITH (NOLOCK)
-	union select REFID,  TRANSFER_DOC		as DOC, 'SL_FBO_AppDetails'								as TableName from SL_FBO_AppDetails							   WITH (NOLOCK)
-	union select REFID,  TRANSFER_DOCLHC	as DOC, 'SL_FBO_AppDetails'								as TableName from SL_FBO_AppDetails							   WITH (NOLOCK)
-	union select REFID,  DOCLocation		as DOC, 'SL_FBO_DocumentChange_log'						as TableName from SL_FBO_DocumentChange_log					   WITH (NOLOCK)
-	union select REFID,  DOCLocation		as DOC, 'SL_FBO_Documents'								as TableName from SL_FBO_Documents							   WITH (NOLOCK)
-	union select REFID,  ManualInspDoc		as DOC, 'SL_FBO_InspMaster'								as TableName from SL_FBO_InspMaster							   WITH (NOLOCK)
-	union select REFID,  Receipt_Doc		as DOC, 'SL_FBO_Payment'								as TableName from SL_FBO_Payment							   WITH (NOLOCK)
-	union select REFID,  Treasury_DOC		as DOC, 'SL_FBO_PaymentDetails'							as TableName from SL_FBO_PaymentDetails						   WITH (NOLOCK)
-	union select REFID,  Receipt_Doc		as DOC, 'SL_FBO_updatepaymentmodehistory_challan_log'	as TableName from SL_FBO_updatepaymentmodehistory_challan_log  WITH (NOLOCK)
-	union select REFID,  CancelDoc			as DOC, 'SL_LicCancelationHistory'						as TableName from SL_LicCancelationHistory					   WITH (NOLOCK)
+	select 'SLS' as LicType, REFID, IssuedDate, [ExpireDate], DOC from (
+	select  B.REFID, B.IssuedDate, B.ExpireDate, A.DOC, ROW_NUMBER() OVER( Partition by A.DOC ORDER BY B.ExpireDate desc ) as rn  FROM (
+		  select REFID,  DOCLocation		as DOC from LM_SL_FBO_Documents							WITH (NOLOCK)
+	union select REFID,  DOCLocation		as DOC from LM_SL_FBO_Documents_log						WITH (NOLOCK)
+	union select REFID,  DUPLIC_DOC			as DOC from SL_FBO_AppDetails							WITH (NOLOCK)
+	union select REFID,  SCANEEDDOC			as DOC from SL_FBO_AppDetails							WITH (NOLOCK)
+	union select REFID,  TRANSFER_DOC		as DOC from SL_FBO_AppDetails							WITH (NOLOCK)
+	union select REFID,  TRANSFER_DOCLHC	as DOC from SL_FBO_AppDetails							WITH (NOLOCK)
+	union select REFID,  DOCLocation		as DOC from SL_FBO_DocumentChange_log					WITH (NOLOCK)
+	union select REFID,  DOCLocation		as DOC from SL_FBO_Documents							WITH (NOLOCK)
+	union select REFID,  ManualInspDoc		as DOC from SL_FBO_InspMaster							WITH (NOLOCK)
+	union select REFID,  Receipt_Doc		as DOC from SL_FBO_Payment								WITH (NOLOCK)
+	union select REFID,  Treasury_DOC		as DOC from SL_FBO_PaymentDetails						WITH (NOLOCK)
+	union select REFID,  Receipt_Doc		as DOC from SL_FBO_updatepaymentmodehistory_challan_log	WITH (NOLOCK)
+	union select REFID,  CancelDoc			as DOC from SL_LicCancelationHistory					WITH (NOLOCK)
 	) AS A 
 		left join (
 	SELECT L.REFID, L.IssuedDate, L.ExpireDate from ( select LicenseNo, MAX(CreatedOn) AS Final 
@@ -141,9 +147,12 @@ BEGIN
 				left join SL_FBO_License as L WITH (NOLOCK) on Le.LicenseNo = L.LicenseNo and Le.Final = L.CreatedOn ) AS B ON A.REFID = B.REFID 
 	where A.REFID not in(						            -- Removing RFID of Applications that had been applied for Renewal
 		select REFID from SL_FBO_AppDetails   WITH (NOLOCK) where ATID in (select ATID from CL_FBO_AppStatusMaster WITH (NOLOCK) where AppType = 'R'and StatusID != 5 and PaymentFlag = 'Y' )
-		) and A.DOC IS NOT NULL and CONVERT (date, B.ExpireDate) < @rmDate
+		) and CONVERT (date, B.ExpireDate) < @rmDate
+		and A.DOC IS NOT NULL 
+		and A.DOC <> ''
 		and A.DOC not in (select DOC from Purging_log where LicType = 'SLS')
-	order by B.ExpireDate
+	) SLSList where rn = 1
+	order by [ExpireDate]
 	--/*
 	END
 			
@@ -151,23 +160,24 @@ BEGIN
 	BEGIN
 	--select * from Purging_log where LicType='Nothing'
 	--/*
-	select 'REG' as LicType, B.REFID, B.IssuedDate, B.ExpireDate, A.DOC, A.TableName FROM (	
-		  select APPID,  photo				as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  id					as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  UPLOADFORMA		as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)	where UPLOADFORMA <> 'Physically'
-	union select APPID,  DupAppDoc			as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  SCANDOC			as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  TransDeathDoc		as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  TransferDoc		as DOC, 'RG_Registration'				  as TableName from RG_Registration					WITH (NOLOCK)
-	union select APPID,  ReceiptDoc			as DOC, 'RG_CashPayment_Log'			  as TableName from RG_CashPayment_Log				WITH (NOLOCK)
-	union select APPID,  DocLocation		as DOC, 'RG_Document'					  as TableName from RG_Document						WITH (NOLOCK)
-	union select APPID,  DOC_UPLOADFORMA	as DOC, 'RG_FBO_Documentlog'			  as TableName from RG_FBO_Documentlog				WITH (NOLOCK)	where DOC_UPLOADFORMA <> 'Physically'
-	union select REFID,  ManualInspDoc		as DOC, 'RG_FBO_InspMaster'				  as TableName from RG_FBO_InspMaster				WITH (NOLOCK)
-	union select REFID,  CancelDoc			as DOC, 'RG_LicCancelationHistory'		  as TableName from RG_LicCancelationHistory		WITH (NOLOCK)
-	union select APPID,  ReceiptDoc			as DOC, 'RG_Payment'					  as TableName from RG_Payment						WITH (NOLOCK)
-	union select APPID,  ReceiptDoc			as DOC, 'RG_Payment_Log'				  as TableName from RG_Payment_Log					WITH (NOLOCK)
-	union select REFID,  DocFile			as DOC, 'RG_SuspendLicenseLog'			  as TableName from RG_SuspendLicenseLog			WITH (NOLOCK)
-	union select REFID,  UploadedID			as DOC, 'RG_FBO_CommercialLicenseDetails' as TableName from RG_FBO_CommercialLicenseDetails WITH (NOLOCK)
+	select 'REG' as LicType, REFID, IssuedDate, [ExpireDate], DOC FROM (	
+	select  B.REFID, B.IssuedDate, B.ExpireDate, A.DOC, ROW_NUMBER() OVER( Partition by A.DOC ORDER BY B.ExpireDate desc ) as rn  FROM (
+		  select APPID,  photo				as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  id					as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  UPLOADFORMA		as DOC from RG_Registration					WITH (NOLOCK)	where UPLOADFORMA <> 'Physically'
+	union select APPID,  DupAppDoc			as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  SCANDOC			as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  TransDeathDoc		as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  TransferDoc		as DOC from RG_Registration					WITH (NOLOCK)
+	union select APPID,  ReceiptDoc			as DOC from RG_CashPayment_Log				WITH (NOLOCK)
+	union select APPID,  DocLocation		as DOC from RG_Document						WITH (NOLOCK)
+	union select APPID,  DOC_UPLOADFORMA	as DOC from RG_FBO_Documentlog				WITH (NOLOCK)	where DOC_UPLOADFORMA <> 'Physically'
+	union select REFID,  ManualInspDoc		as DOC from RG_FBO_InspMaster				WITH (NOLOCK)
+	union select REFID,  CancelDoc			as DOC from RG_LicCancelationHistory		WITH (NOLOCK)
+	union select APPID,  ReceiptDoc			as DOC from RG_Payment						WITH (NOLOCK)
+	union select APPID,  ReceiptDoc			as DOC from RG_Payment_Log					WITH (NOLOCK)
+	union select REFID,  DocFile			as DOC from RG_SuspendLicenseLog			WITH (NOLOCK)
+	union select REFID,  UploadedID			as DOC from RG_FBO_CommercialLicenseDetails WITH (NOLOCK)
 
 	) AS A 
 		left join (
@@ -176,12 +186,13 @@ BEGIN
 				left join RG_License as L WITH (NOLOCK) on Le.LicenseNo = L.LicenseNo and Le.Final = L.CreatedOn ) AS B ON A.APPID = B.REFID 
 	where B.REFID not in(                 -- Removing RFID of Applications that had been applied for Renewal
 	    select APPID from RG_Registration WITH (NOLOCK) where Reg_No in  (select Reg_No from RG_Registration WITH (NOLOCK) where AppType = 'R'and StatusID != 29 and Payment_Flag = 'Y')
-		) and A.DOC IS NOT NULL and	CONVERT (date, B.ExpireDate) < @rmDate
+		) and	CONVERT (date, B.ExpireDate) < @rmDate
+		and A.DOC IS NOT NULL 
+		and A.DOC <> ''
 		and A.DOC not in (select DOC from Purging_log where LicType = 'SLS')
-		order by ExpireDate 
-		--*/
+	) REGList where rn = 1
+	order by [ExpireDate]
+	--*/
 	END
 END
 GO
-
-
