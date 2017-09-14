@@ -1,7 +1,6 @@
 #!/bin/bash
-sed -e 
+sed -e
 echo "Installing Moodle"
-cd /opt/final
 #wget "https://download.moodle.org/stable33/moodle-3.3.1.tgz"
 tar -xzf moodle-3.3.1.tgz -C /opt/APPS/
 ln -s /opt/APPS/moodle /opt/apache/htdocs/moodle

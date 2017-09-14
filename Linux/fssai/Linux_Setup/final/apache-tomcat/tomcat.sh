@@ -6,6 +6,18 @@ DEVENV=/opt/DevEnv
 mkdir $DEVENV
 # ---------------------------------------------------------------------------# 
 tomcatURL="http://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz"
+    jkURL="http://archive.apache.org/dist/tomcat/tomcat-connectors/jk/tomcat-connectors-1.2.42-src.tar.gz"
+
+# Installing Java -----------------------------------------------------------#
+echo -e "\nInstalling Java\n"
+##wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" $javaURL 
+tar -xzf $PKGS/jdk-8*-linux-x64.tar.gz -C $DEVENV
+mv $DEVENV/jdk1.8.*/ $DEVENV/jdk8
+
+JAVA=$DEVENV/jdk8
+echo -e "\nJava Installation Completed\n"
+$JAVA/bin/java -version
+
 # Installing Tomcat ---------------------------------------------------------#
 echo -e "\nInstalling Tomcat\n"
 ##wget $tomcatURL
