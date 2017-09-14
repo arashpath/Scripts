@@ -3,7 +3,7 @@ set -e
 #Install PHP
 echo "Installing PHP"
 #wget "http://in1.php.net/distributions/php-5.6.31.tar.gz"
-tar -xzf php-5.6.31.tar.gz 
+tar -xzf php-5.6.31.tar.gz
 cd php-5.6.31/
 
 yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel freetype-devel libicu-devel gcc-c++ openldap-devel libxslt-devel
@@ -38,12 +38,3 @@ AddType application/x-httpd-php-source .phps
 
 
 EOF
-
-sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /opt/apache/conf/httpd.conf
-
-mkdir /opt/apache/htdocs/php
-echo "<?php
-  phpinfo();
-?>" > /opt/apache/htdocs/php/index.php
-
-systemctl restart apache 
