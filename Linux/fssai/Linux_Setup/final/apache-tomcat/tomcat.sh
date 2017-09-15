@@ -3,7 +3,7 @@
 set -e
 PKGS=$(dirname $(readlink -f "$0") )
 DEVENV=/opt/DevEnv
-mkdir $DEVENV
+mkdir -p $DEVENV
 # ---------------------------------------------------------------------------# 
 tomcatURL="http://archive.apache.org/dist/tomcat/tomcat-8/v8.5.9/bin/apache-tomcat-8.5.9.tar.gz"
     jkURL="http://archive.apache.org/dist/tomcat/tomcat-connectors/jk/tomcat-connectors-1.2.42-src.tar.gz"
