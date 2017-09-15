@@ -3,7 +3,7 @@
 set -e 
 PKGS=$(dirname $(readlink -f "$0") )
 DEVENV=/opt/DevEnv
-mkdir $DEVENV
+mkdir -p $DEVENV
 
 # URLs In-case Download Required
 # Download link for httpd, APR, APR-UTI.
