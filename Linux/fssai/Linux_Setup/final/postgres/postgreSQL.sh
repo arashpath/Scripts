@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+echo "Installing PostgreSQL"
 PKGS=$(dirname $(readlink -f "$0") )
 datadir='/opt/psqlDATA'
 pgpass='passwd'
@@ -14,4 +15,5 @@ ln -s /opt/postgresql/pg95/pg95.env /etc/profile.d/pg95.sh
 systemctl enable postgresql95 
 systemctl start postgresql95
 source /opt/postgresql/pg95/pg95.env
-#psql 
+echo "PostgreSQL Installed .."
+pg_config --version
