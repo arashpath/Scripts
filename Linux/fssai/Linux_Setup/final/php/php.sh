@@ -38,3 +38,6 @@ AddType application/x-httpd-php-source .phps
 
 
 EOF
+
+echo "PHP Installed.."
+/opt/DevEnv/PHP/bin/php -v
