@@ -39,5 +39,14 @@ AddType application/x-httpd-php-source .phps
 
 EOF
 
+sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /opt/apache/conf/httpd.conf
+
+mkdir /opt/apache/htdocs/php
+echo "<?php
+  phpinfo();
+?>" > /opt/apache/htdocs/php/index.php
+
+systemctl restart apache 
+
 echo "PHP Installed.."
 /opt/DevEnv/PHP/bin/php -v
