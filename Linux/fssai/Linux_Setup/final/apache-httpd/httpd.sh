@@ -12,6 +12,7 @@ mkdir -p $DEVENV
   utilURL="https://archive.apache.org/dist/apr/apr-util-1.5.2.tar.gz"
 
 # Installng Apache 2.4 ------------------------------------------------------#
+yum -y install wget make gcc openssl-devel pcre-devel
 echo -e "\nInstalling Apache\n"
 ##wget $httpdURL
 tar -xzf $PKGS/httpd-2.4.*.tar.gz -C $DEVENV
@@ -25,7 +26,6 @@ mv $DEVENV/apr-* $DEVENV/httpd/srclib/apr
 tar -xzf $PKGS/apr-util-*.tar.gz -C $DEVENV
 mv $DEVENV/apr-util* $DEVENV/httpd/srclib/apr-util
 cd $DEVENV/httpd
-yum -y install wget make gcc openssl-devel pcre-devel
 
 ./configure -q 	--prefix=/opt/apache \
 		--enable-mods-shared="all" \
