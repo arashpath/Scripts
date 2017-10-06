@@ -19,6 +19,7 @@ cd $DEVENV/tomcat-connectors-*-src/native
 rm -rf $DEVENV/tomcat-connectors-*-src/
 
 cat <<EOF >> /opt/apache/conf/httpd.conf
+
 # Tomcat connections (mod_jk)
 Include conf/mod-jk.conf
 EOF

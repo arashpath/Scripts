@@ -30,16 +30,17 @@ yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel free
   --with-xsl && make && make install
 
 
+cp php.ini-development /opt/DevEnv/PHP/lib/php.ini
+
+sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /opt/apache/conf/httpd.conf
 cat << EOF >> /opt/apache/conf/httpd.conf
+# PHP Configuration
 <IfModule php5_module>
 AddType application/x-httpd-php .php .php3 .phtml
 AddType application/x-httpd-php-source .phps
 </IfModule>
-
-
 EOF
 
-sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /opt/apache/conf/httpd.conf
 
 mkdir /opt/apache/htdocs/php
 echo "<?php
