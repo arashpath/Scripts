@@ -33,6 +33,16 @@ cd $DEVENV/httpd
 
 rm -rf $DEVENV/httpd/
 
+# Server Status
+cat <<EOF >> /opt/apache/conf/httpd.conf
+# Server Status
+<Location "/server-status">
+    SetHandler server-status
+    Require host localhost
+</Location>
+
+EOF
+
 # Virtual hosts
 sed -i '/httpd-vhosts\.conf/s/^.*$/Include\ conf\/vhost\.d\/\*\.conf/' /opt/apache/conf/httpd.conf
 mkdir /opt/apache/conf/vhost.d
