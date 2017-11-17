@@ -38,6 +38,8 @@ EOF
 
 chmod +x $BASE/bin/server.sh
 
+cp -a $HOME/webapps/examples $BASE/webapps/
+
 # Tomcat SystemCtl Script ----------------------#
 cat <<EOF > /etc/systemd/system/tomcat0.service
 # Systemd unit file for tomcat0 8080 port
