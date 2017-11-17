@@ -18,6 +18,7 @@ yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel free
   --with-jpeg-dir \
   --with-png-dir \
   --with-mysql \
+  --with-mysqli \
   --with-pgsql=/opt/postgresql/pg95/bin \
   --enable-embedded-mysqli \
   --with-freetype-dir \
@@ -57,7 +58,7 @@ AddType application/x-httpd-php-source .phps
 EOF
 
 
-mkdir /opt/apache/htdocs/php
+mkdir -p /opt/apache/htdocs/php
 echo "<?php
   phpinfo();
 ?>" > /opt/apache/htdocs/php/index.php
