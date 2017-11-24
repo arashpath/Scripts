@@ -23,5 +23,7 @@ echo "$gitSUM $(ls  git-*.tar.gz)" \
  | sha256sum -c - && tar xzf git-*.tar.gz 
 cd git-* && ./configure --prefix=$DEVENV/git/ && make all && make install
 
+echo "export PATH=$DEVENV/git/bin:\$PATH" >> /opt/DevEnv/dev.env
+
 echo "Git Installed ..."
 $DEVENV/git/bin/git --version
