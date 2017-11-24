@@ -15,5 +15,7 @@ echo "$rubySUM $(ls ruby-*.tar.gz)" \
  | sha256sum -c - && tar xzf ruby-*.tar.gz
 cd ruby-*/ && ./configure --prefix=$DEVENV/ruby/ && make && make install
 
+echo "export PATH=$DEVENV/ruby/bin:\$PATH" >> /opt/DevEnv/dev.env
+
 echo "Ruby Installed ..."
 $DEVENV/ruby/bin/ruby -v
