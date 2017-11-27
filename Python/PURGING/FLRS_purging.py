@@ -19,7 +19,7 @@ def insert(row, status):
     values = list(row)
     'INSERT QUERY FOR PURGING LOG'
     insert_query ='''INSERT INTO [dbo].[Purging_log] (
-        [LicType],[REFID],[IssuedDate],[ExpireDate],[DOC],[TableName],
+        [LicType],[REFID],[IssuedDate],[ExpireDate],[DOC],
         [Status]) VALUES (?,?,?,?,?,?,?) ;'''
     values.append(status)
     try:

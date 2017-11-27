@@ -8,21 +8,21 @@ mkdir -p /opt/docs/moodledata
 chown daemon.daemon /opt/docs/moodledata /opt/APPS/moodle
 
 source /opt/postgresql/pg95.env 
-psql -c "CREATE ROLE moodleuser LOGIN ENCRYPTED PASSWORD 'moodle@123' NOINHERIT VALID UNTIL 'infinity';"
-psql -c "CREATE DATABASE moodledb WITH ENCODING='UTF8' OWNER moodleuser;"
+psql -c "CREATE ROLE moodlesnf LOGIN ENCRYPTED PASSWORD 'moodle@123' NOINHERIT VALID UNTIL 'infinity';"
+psql -c "CREATE DATABASE moodledb WITH ENCODING='UTF8' OWNER moodlesnf;"
 
 sudo -u daemon /opt/DevEnv/PHP/bin/php /opt/APPS/moodle/admin/cli/install.php --lang=en \
---wwwroot=http://192.168.11.221/moodle \
+--wwwroot=http://snfportal.in/cert \
 --dataroot=/opt/docs/moodledata \
 --dbtype='pgsql' \
---dbhost='localhost' \
+--dbhost='psqlsnfdb' \
 --dbname='moodledb' \
---dbuser='moodleuser' \
+--dbuser='moodlesnf' \
 --dbpass='moodle@123' \
 --fullname='NewMoodleSite' \
 --shortname='NewSite' \
---adminuser='fssai' \
---adminpass='F$$@i123' \
+--adminuser='snfadmin' \
+--adminpass='rubel@123' \
 --adminemail='fssai.cdc@gmail.com' \
 --agree-license \
 --non-interactive
