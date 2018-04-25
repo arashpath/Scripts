@@ -19,6 +19,7 @@ yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel free
   --with-png-dir \
   --with-mysql \
   --with-mysqli \
+  --with-pdo-mysql --enable-pdo \
   --with-pgsql=/opt/postgresql/pg95/bin \
   --enable-embedded-mysqli \
   --with-freetype-dir \

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from win32com.client import GetObject
 
 KB = float(1024)
