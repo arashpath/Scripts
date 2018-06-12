@@ -1,13 +1,24 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Installation DEVENV -------------------------------------------------------#
 set -e
-#Install PHP
-echo "Installing PHP"
-#wget "http://in1.php.net/distributions/php-5.6.31.tar.gz"
-tar -xzf php-5.6.31.tar.gz
-cd php-5.6.31/
+PKGS=$(dirname $(readlink -f "$0") )
+DEVENV=/opt/DevEnv
+mkdir -p $DEVENV
+# ---------------------------------------------------------------------------# 
+phpURL="http://in1.php.net/distributions/php-5.6.31.tar.gz"
 
-yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel freetype-devel libicu-devel gcc-c++ openldap-devel libxslt-devel
-./configure --prefix=/opt/DevEnv/PHP \
+# Installing PHP ------------------------------------------------------------#
+echo -e "\nInstalling PHP\n"
+#wget $phpURL
+tar -xzf $PKGS/php-5.6.*.tar.gz -C $DEVENV
+mv $DEVENV/php-5.6*/ $DEVENV/php
+cd $DEVENV/php
+
+yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel \
+	freetype-devel libicu-devel gcc-c++ openldap-devel libxslt-devel
+
+./configure --prefix=$DEVENV/PHP \
   --with-apxs2=/opt/apache/bin/apxs \
   --enable-mbstring \
   --with-curl \
@@ -31,24 +42,6 @@ yum -y install libxml2-devel libcurl-devel libjpeg-turbo-devel libpng-devel free
   --enable-opcache \
   --with-xsl && make && make install
 
-# Custom Settings for Moodle
-cp php.ini-production /opt/DevEnv/PHP/lib/php.ini
-sed -i '
-        s/^max_execution_time = 30$/max_execution_time = 120/
-        s/^max_input_time = 60$/max_input_time = 300/
-        s/^post_max_size = 8M$/post_max_size = 40M/
-        s/^upload_max_filesize = 2M$/upload_max_filesize = 40M/
-        s|^;date.timezone =$|date.timezone = "Asia/Kolkata"|
-        /\[opcache\]/ a zend_extension=opcache.so
-        s/^;opcache.enable=0$/opcache.enable=1/     
-        s/^;opcache.enable_cli=0$/opcache.enable_cli=0/
-        s/^;opcache.memory_consumption=64$/opcache.memory_consumption=128/
-        s/^;opcache.interned_strings_buffer=4$/opcache.interned_strings_buffer=8/
-        s/^;opcache.max_accelerated_files=2000$/opcache.max_accelerated_files=10000/
-        s/^;opcache.revalidate_freq=2$/opcache.revalidate_freq=60/
-        s/^;opcache.fast_shutdown=0$/opcache.fast_shutdown=1/
-' /opt/DevEnv/PHP/lib/php.ini
-
 sed -i 's/DirectoryIndex index.html/DirectoryIndex index.php index.html/' /opt/apache/conf/httpd.conf
 cat << EOF >> /opt/apache/conf/httpd.conf
 # PHP Configuration
@@ -67,4 +60,4 @@ echo "<?php
 systemctl restart apache 
 
 echo "PHP Installed.."
-/opt/DevEnv/PHP/bin/php -v
+$DEVENV/PHP/bin/php -v
